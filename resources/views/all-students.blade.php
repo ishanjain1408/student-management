@@ -47,14 +47,12 @@
                 </div>
 
                 <div class="flex justify-between mt-5">
-    <!-- Edit Button -->
     <a href="{{ route('edit-student', $student->id) }}"
        class="px-4 py-2 flex items-center gap-2 bg-yellow-400 text-white font-medium rounded-xl
               shadow-md hover:bg-yellow-500 transition-all duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
         Edit
     </a>
 
-    <!-- Delete Button -->
     <form action="{{ route('delete-student', $student->id) }}" method="POST"
           onsubmit="return confirm('Are you sure you want to delete this student?');">
         @csrf
