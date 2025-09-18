@@ -19,7 +19,7 @@ class CreateStudentsTable extends Migration
             $table->date('dob');
             $table->string('contact');
             $table->string('gender')->nullable();
-            $table->string('class');
+            $table->string('class_name');
             $table->string('section')->nullable();
             $table->string('previous_school')->nullable();
             $table->text('disabilities')->nullable();

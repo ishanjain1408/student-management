@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use Carbon\Carbon;
 
 class StudentController extends Controller
 {
@@ -17,32 +18,102 @@ class StudentController extends Controller
         return view('add-student');
     }
 
-    public function storeStudent(Request $request)
-    {
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('students', 'public');
-        }
+     public function storeStudent(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'dob' => [
+            'required',
+            'date',
+            function ($attribute, $value, $fail) {
+                if (\Carbon\Carbon::parse($value)->age < 3) {
+                    $fail('Student must be at least 3 years old.');
+                }
+            },
+        ],
+        'contact' => 'required|string|max:15',
+        'gender' => 'required',
+        'class' => 'required',
+        'section' => 'required',
+        'photo' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
 
-        Student::create([
-            'name' => $request->input('name'),
-            'dob' => $request->input('dob'),
-            'contact' => $request->input('contact'),
-            'gender' => $request->input('gender'),
-            'class' => $request->input('class'),
-            'section' => $request->input('section'),
-            'previous_school' => $request->input('previous_school'),
-            'disabilities' => implode(', ', $request->input('disabilities', [])),
-            'photo' => $photoPath,
-        ]);
+    $photoPath = $request->file('photo')->store('students', 'public');
 
-        return redirect()->route('all.students')->with('success', 'Student added successfully!');
-    }
+    Student::create([
+        'name' => $request->name,
+        'dob' => $request->dob,
+        'contact' => $request->contact,
+        'gender' => $request->gender,
+        'class' => $request->class,
+        'section' => $request->section,
+        'previous_school' => $request->previous_school,
+        'disabilities' => $request->has('disabilities') ? implode(', ', $request->disabilities) : null,
+        'photo' => $photoPath,
+    ]);
+
+    return redirect()->route('all.students')->with('success', 'Student added successfully!');
+}
+
 
     public function allStudents()
     {
         $students = Student::all();
-        return view('all-students', ['students' => $students]);
+        return view('all-students', compact('students'));
+    }
+
+    public function editStudent($id)
+    {
+        $student = Student::findOrFail($id);
+        return view('edit-student', compact('student'));
+    }
+
+    public function updateStudent(Request $request, $id)
+    {
+        $student = Student::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'dob' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    if (Carbon::parse($value)->age < 3) {
+                        $fail('Student must be at least 3 years old.');
+                    }
+                },
+            ],
+            'contact' => 'required|string|max:15',
+            'gender' => 'required',
+            'class' => 'required',
+            'section' => 'required',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $photoPath = $request->file('photo')->store('students', 'public');
+            $student->photo = $photoPath;
+        }
+
+        $student->update([
+            'name' => $request->name,
+            'dob' => $request->dob,
+            'contact' => $request->contact,
+            'gender' => $request->gender,
+            'class' => $request->class,
+            'section' => $request->section,
+            'previous_school' => $request->previous_school,
+            'disabilities' => $request->disabilities ? implode(', ', $request->disabilities) : null,
+        ]);
+
+        return redirect()->route('all.students')->with('success', 'Student updated successfully!');
+    }
+
+    public function deleteStudent($id)
+    {
+        $student = Student::findOrFail($id);
+        $student->delete();
+        return redirect()->route('all.students')->with('success', 'Student deleted successfully!');
     }
 
     public function searchStudent(Request $request)

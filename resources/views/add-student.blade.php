@@ -2,7 +2,17 @@
 
 @section('content')
 <div class="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-xl">
-    <h2 class="text-3xl font-bold text-slate-800 mb-6 text-center">➕Add Student</h2>
+    <h2 class="text-3xl font-bold text-slate-800 mb-6 text-center">Add Student</h2>
+
+     @if ($errors->any())
+        <div class="bg-red-100 text-red-700 p-3 rounded mb-4">
+            <ul class="list-disc list-inside">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
     <form action="{{ route('store-student') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
         @csrf

@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-5xl mx-auto p-6">
-    <h2 class="text-3xl font-bold text-slate-800 mb-8 text-center">🔍 Search Student</h2>
+    <h2 class="text-3xl font-bold text-slate-800 mb-8 text-center">Search Student</h2>
 
     <div class="bg-white p-6 rounded-2xl shadow-md border border-gray-100 mb-10">
         <form action="{{ route('search.student') }}" method="GET" class="grid grid-cols-1 md:grid-cols-2 gap-6">
